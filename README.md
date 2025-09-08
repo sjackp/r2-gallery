@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # R2 Gallery
 
 A minimalist, Apple-inspired web UI to manage a Cloudflare R2 bucket.
