@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R2 Bucket Gallery</title>
+
+    <!-- Fonts & Tailwind CSS -->
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Custom color scheme and base styles inspired by the provided example */
+        :root {
+            --accent: #0A84FF;
+            /* iOS Blue */
+            --bg: #F8F9FB;
+            /* Soft Off-White */
+            --glass: rgba(255, 255, 255, 0.8);
+            /* Translucent White */
+            --border: rgba(255, 255, 255, 0.5);
+            --shadow: rgba(0, 0, 0, 0.05);
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+        }
+
+        body {
+            font-family: 'Inter', 'SF Pro Display', '-apple-system', BlinkMacSystemFont, system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Frosted glass card for images */
+        .media-card {
+            background: var(--glass);
+            backdrop-filter: blur(24px) saturate(160%);
+            -webkit-backdrop-filter: blur(24px) saturate(160%);
+            border: 1px solid var(--border);
+            border-radius: 24px; /* More rounded corners */
+            box-shadow: 0 8px 32px var(--shadow);
+            transition: transform 0.3s cubic-bezier(.34, 1.56, .64, 1), box-shadow 0.3s cubic-bezier(.34, 1.56, .64, 1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .media-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Sidebar icon styling */
+        .sidebar-icon {
+            transition: transform 0.2s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .sidebar-icon:hover {
+            transform: scale(1.1);
+            color: var(--accent);
+        }
+
+        /* Custom modal for notifications */
+        #notification-modal {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="h-screen flex overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-16 md:w-20 flex flex-col items-center py-8 space-y-10 bg-white/95 backdrop-blur-sm shadow-sm z-10">
+        <div class="text-blue-500">
+             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cloud-sun"><path d="M12 16.5A4.5 4.5 0 1 1 7.5 12a4.5 4.5 0 1 1 4.5 4.5z"/><path d="M12 7.5V9"/><path d="M16.5 12H15"/><path d="m15 15-.88.88"/><path d="M9 15l.88.88"/><path d="M12 16.5V15"/><path d="M7.5 12H9"/><path d="m9 9 .88-.88"/><path d="M15 9l-.88-.88"/><path d="M17.5 19H9a7 7 0 0 1-7-7 7 7 0 0 1 7-7h.5"/><path d="M22 10a3 3 0 0 0-3-3h-2.5"/></svg>
+        </div>
+        <nav class="flex flex-col items-center space-y-8">
+            <a href="#" class="sidebar-icon text-gray-500 hover:text-blue-500" title="Gallery">
+                <i data-lucide="layout-grid"></i>
+            </a>
+            <a href="#" class="sidebar-icon text-gray-500 hover:text-blue-500" title="Favorites">
+                <i data-lucide="star"></i>
+            </a>
+            <a href="#" class="sidebar-icon text-gray-500 hover:text-blue-500" title="Uploads">
+                <i data-lucide="upload-cloud"></i>
+            </a>
+            <a href="#" class="sidebar-icon text-gray-500 hover:text-blue-500" title="Settings">
+                <i data-lucide="settings"></i>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col">
+        <!-- Header -->
+        <header class="flex items-center justify-between px-6 md:px-10 py-5 border-b border-gray-200/80">
+            <h1 class="text-2xl md:text-3xl font-semibold tracking-tight text-gray-800">Media Gallery</h1>
+             <div class="flex items-center space-x-4">
+                <button class="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                    <i data-lucide="search" class="text-gray-600"></i>
+                </button>
+                <img src="https://placehold.co/40x40/0A84FF/FFFFFF?text=A" alt="User Avatar" class="w-10 h-10 rounded-full">
+            </div>
+        </header>
+
+        <!-- Image Grid -->
+        <section class="flex-1 overflow-y-auto p-6 md:p-10">
+            <div id="image-grid" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                <!-- Image cards will be dynamically inserted here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Notification Modal -->
+    <div id="notification-modal" class="fixed bottom-5 right-5 bg-gray-800 text-white py-3 px-5 rounded-lg shadow-xl opacity-0 transform translate-y-2 pointer-events-none">
+        <p id="notification-message"></p>
+    </div>
+
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // --- Mock Data ---
+        const images = [
+            { id: 1, url: 'https://placehold.co/600x400/e2e8f0/475569?text=Landscape' },
+            { id: 2, url: 'https://placehold.co/600x400/fecaca/991b1b?text=Abstract' },
+            { id: 3, url: 'https://placehold.co/600x400/bbf7d0/166534?text=Nature' },
+            { id: 4, url: 'https://placehold.co/600x400/bfdbfe/1e40af?text=Ocean' },
+            { id: 5, url: 'https://placehold.co/600x400/fef08a/854d0e?text=Desert' },
+            { id: 6, url: 'https://placehold.co/600x400/ddd6fe/5b21b6?text=Cityscape' },
+            { id: 7, url: 'https://placehold.co/600x400/fbcfe8/9d2667?text=Minimal' },
+            { id: 8, url: 'https://placehold.co/600x400/fed7aa/9a3412?text=Architecture' },
+            { id: 9, url: 'https://placehold.co/600x400/d1fae5/065f46?text=Forest' },
+            { id: 10, url: 'https://placehold.co/600x400/c7d2fe/3730a3?text=Sky' },
+        ];
+
+        const imageGrid = document.getElementById('image-grid');
+
+        // --- Render Image Cards ---
+        function renderGallery() {
+            imageGrid.innerHTML = ''; // Clear existing grid
+            images.forEach(image => {
+                const card = document.createElement('div');
+                card.className = 'media-card';
+                card.dataset.id = image.id;
+                card.innerHTML = `
+                    <div class="flex-grow bg-gray-100">
+                        <img src="${image.url}" alt="Gallery image" class="w-full h-full object-cover aspect-video" onerror="this.onerror=null;this.src='https://placehold.co/600x400/f87171/ffffff?text=Error';">
+                    </div>
+                    <div class="p-3 bg-white/50 backdrop-blur-sm border-t border-white/50 flex items-center justify-end space-x-2">
+                        <button class="p-2 rounded-md hover:bg-gray-200/70 transition-colors copy-btn" title="Copy Link">
+                            <i data-lucide="link-2" class="w-5 h-5 text-gray-600"></i>
+                        </button>
+                        <a href="${image.url}" download="image-${image.id}.png" class="p-2 rounded-md hover:bg-gray-200/70 transition-colors" title="Download">
+                            <i data-lucide="download" class="w-5 h-5 text-gray-600"></i>
+                        </a>
+                        <button class="p-2 rounded-md hover:bg-red-100/70 transition-colors delete-btn" title="Delete">
+                            <i data-lucide="trash-2" class="w-5 h-5 text-red-500"></i>
+                        </button>
+                    </div>
+                `;
+                imageGrid.appendChild(card);
+            });
+            lucide.createIcons(); // Re-initialize icons for new elements
+        }
+
+        // --- Event Listeners ---
+        imageGrid.addEventListener('click', function(e) {
+            const button = e.target.closest('button');
+            if (!button) return;
+
+            const card = button.closest('.media-card');
+            const imageId = parseInt(card.dataset.id);
+            const imageUrl = images.find(img => img.id === imageId)?.url;
+
+            if (button.classList.contains('copy-btn')) {
+                copyToClipboard(imageUrl);
+            }
+
+            if (button.classList.contains('delete-btn')) {
+                deleteImage(imageId, card);
+            }
+        });
+
+        // --- Actions ---
+        function copyToClipboard(text) {
+            if (!text) return;
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showNotification('Link copied to clipboard!');
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                showNotification('Failed to copy link.', 'error');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function deleteImage(id, cardElement) {
+            // In a real app, you'd make an API call here.
+            // For this demo, we'll just remove it from the UI.
+            cardElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            cardElement.style.transform = 'scale(0.95)';
+            cardElement.style.opacity = '0';
+            
+            setTimeout(() => {
+                cardElement.remove();
+                 // Optional: remove from the array as well
+                const index = images.findIndex(img => img.id === id);
+                if (index > -1) {
+                    images.splice(index, 1);
+                }
+            }, 300);
+
+            showNotification('Image deleted.');
+        }
+
+        // --- UI Feedback ---
+        const notificationModal = document.getElementById('notification-modal');
+        const notificationMessage = document.getElementById('notification-message');
+        let notificationTimeout;
+
+        function showNotification(message, type = 'success') {
+            clearTimeout(notificationTimeout);
+            notificationMessage.textContent = message;
+            notificationModal.classList.remove('opacity-0', 'translate-y-2');
+            
+            notificationTimeout = setTimeout(() => {
+                notificationModal.classList.add('opacity-0', 'translate-y-2');
+            }, 3000);
+        }
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', renderGallery);
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  web:
+    build: .
+    image: r2-gallery:latest
+    ports:
+      - "3423:3423"
+    environment:
+      - NODE_ENV=production
+      - PORT=3423
+      - CLOUDFLARE_ACCOUNT_ID=${CLOUDFLARE_ACCOUNT_ID}
+      - CLOUDFLARE_ACCESS_KEY=${CLOUDFLARE_ACCESS_KEY}
+      - CLOUDFLARE_SECRET_ACCESS_KEY=${CLOUDFLARE_SECRET_ACCESS_KEY}
+      - CLOUDFLARE_BUCKETNAME=${CLOUDFLARE_BUCKETNAME}
+      - CLOUDFLARE_REGION=${CLOUDFLARE_REGION}
+      - CLOUDFLARE_BUCKET_URL=${CLOUDFLARE_BUCKET_URL}
+      - URL_TTL_SECONDS=${URL_TTL_SECONDS}
+      - APP_PASSWORD=${APP_PASSWORD}
+      - NEXT_PUBLIC_APP_PASSWORD=${NEXT_PUBLIC_APP_PASSWORD}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3423"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+

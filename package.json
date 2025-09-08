@@ -1,0 +1,55 @@
+{
+  "name": "r2-gallery",
+  "version": "0.1.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev -p 3423",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "keywords": [
+    "cloudflare",
+    "r2",
+    "gallery",
+    "s3",
+    "nextjs",
+    "self-hosted"
+  ],
+  "author": "",
+  "license": "MIT",
+  "description": "A minimalist, Apple-inspired web UI to manage a Cloudflare R2 bucket.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourname/r2-gallery.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourname/r2-gallery/issues"
+  },
+  "homepage": "https://github.com/yourname/r2-gallery#readme",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.872.0",
+    "@aws-sdk/s3-request-presigner": "^3.872.0",
+    "@tailwindcss/postcss": "^4.1.12",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.23.12",
+    "lucide-react": "0.540.0",
+    "next": "^15.5.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tailwind-merge": "^3.3.1",
+    "zod": "^4.0.17",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.10",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.33.0",
+    "eslint-config-next": "^15.5.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.12",
+    "typescript": "^5.9.2"
+  }
+}
