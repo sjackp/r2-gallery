@@ -1,7 +1,8 @@
-<<<<<<< HEAD
 # R2 Gallery
 
-A minimalist, Apple-inspired web UI to manage a Cloudflare R2 bucket.
+A minimalist web UI to manage a Cloudflare R2 bucket. 
+Easily drag & drop to upload files and or folders.
+Bulk copy links, single click downloads.
 
 This project is dev-first and self-hosted. It’s reasonably secure for personal use but not production-hardened. PRs welcome!
 
@@ -124,7 +125,4 @@ See `CONTRIBUTING.md` for setup, coding style, and how to propose changes.
 ## License
 
 MIT — see `LICENSE`.
-=======
-# r2-gallery
-A minimalist web UI to manage a Cloudflare R2 bucket
->>>>>>> 10e7772257d44043e2a993b7b6c8650f8661036a
+
