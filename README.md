@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # R2 Gallery
 
 A minimalist, Apple-inspired web UI to manage a Cloudflare R2 bucket.
@@ -123,3 +124,7 @@ See `CONTRIBUTING.md` for setup, coding style, and how to propose changes.
 ## License
 
 MIT — see `LICENSE`.
+=======
+# r2-gallery
+A minimalist web UI to manage a Cloudflare R2 bucket
+>>>>>>> 10e7772257d44043e2a993b7b6c8650f8661036a
