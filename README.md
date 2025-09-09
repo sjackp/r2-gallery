@@ -1,6 +1,7 @@
 # R2 Gallery
 
-![R2 Gallery Demo](./demos.gif)
+![R2 Gallery Demo](https://raw.githubusercontent.com/sjackp/r2-gallery/main/demos.gif)
+
 
 A minimalist web UI to manage a Cloudflare R2 bucket. 
 Easily drag & drop to upload files and or folders.
