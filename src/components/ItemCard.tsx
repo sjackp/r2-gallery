@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Toast } from './ui/Toast';
 import { Card, CardContent, CardFooter } from './ui/Card';
 import { Link2, Download, Trash2 } from 'lucide-react';
@@ -21,8 +21,24 @@ export function ItemCard({ object }: ItemCardProps) {
   const [isFocusVisible, setIsFocusVisible] = useState(false);
   const { selectedKeys, toggleSelect, deleteOne } = useObjectStore();
   const isSelected = selectedKeys.includes(object.Key);
+  const visibleRef = useRef<HTMLDivElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    const el = visibleRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) setIsVisible(true);
+      }
+    }, { root: null, rootMargin: '400px', threshold: 0 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    let aborted = false;
+    const controller = new AbortController();
     const loadPreview = async () => {
       setIsLoading(true);
       setImageUrl(null);
@@ -45,37 +61,61 @@ export function ItemCard({ object }: ItemCardProps) {
       const isImg = hasImageExtension || hasImageContentType;
       const isVid = hasVideoExtension || hasVideoContentType;
 
-      if (isImg || isVid) {
-        setIsImage(isImg);
-        setIsVideo(isVid);
+      if (!(isImg || isVid)) {
+        if (!aborted) setIsLoading(false);
+        return;
+      }
+      setIsImage(isImg);
+      setIsVideo(isVid);
 
-        try {
-          const response = await fetch('/api/objects/signed-get', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${process.env.NEXT_PUBLIC_APP_PASSWORD}`,
-            },
-            body: JSON.stringify({ key: object.Key }),
-          });
+      // Only load when visible
+      if (!isVisible) {
+        if (!aborted) setIsLoading(false);
+        return;
+      }
 
-          if (response.ok) {
+      try {
+        if (isImg) {
+          const thumbBase = process.env.NEXT_PUBLIC_THUMBNAIL_URL || '';
+          if (thumbBase) {
+            const params = new URLSearchParams();
+            params.set('key', object.Key);
+            params.set('w', '800');
+            params.set('h', '800');
+            params.set('q', '75');
+            params.set('fit', 'cover');
+            const u = thumbBase.replace(/\/$/, '') + '?' + params.toString();
+            if (!aborted) setImageUrl(u);
+          } else {
+            const response = await fetch('/api/objects/signed-get', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.NEXT_PUBLIC_APP_PASSWORD}`,
+              },
+              body: JSON.stringify({ key: object.Key }),
+              signal: controller.signal,
+            });
+            if (!response.ok) throw new Error('failed');
             const data = await response.json();
-            if (isImg) setImageUrl(data.url);
-            if (isVid) setVideoUrl(data.url);
+            if (!aborted) setImageUrl(data.url);
           }
-        } catch (error) {
-          console.error('Failed to load preview:', error);
         }
+      } catch (error) {
+        if (!aborted) console.error('Failed to load preview:', error);
       }
       
-      setIsLoading(false);
+      if (!aborted) setIsLoading(false);
     };
 
     if (object.Key) {
       loadPreview();
     }
-  }, [object.Key, object.ContentType]);
+    return () => {
+      aborted = true;
+      try { controller.abort(); } catch {}
+    };
+  }, [object.Key, object.ContentType, isVisible]);
 
   // Close focused view with Escape
   useEffect(() => {
@@ -251,7 +291,7 @@ export function ItemCard({ object }: ItemCardProps) {
       }}
     >
       <CardContent className="flex flex-col items-center justify-center relative">
-        <div className="w-full h-44 bg-gray-100 rounded-xl mb-3 flex items-center justify-center overflow-hidden border border-black/5">
+        <div className="w-full h-44 bg-gray-100 rounded-xl mb-3 flex items-center justify-center overflow-hidden border border-black/5" ref={visibleRef}>
           {renderPreview()}
         </div>
         <p
@@ -288,18 +328,21 @@ export function ItemCard({ object }: ItemCardProps) {
         >
           <div className="w-full h-[70vh] bg-black flex items-center justify-center">
             {isImage && imageUrl && (
-              <img src={imageUrl} alt={object.Key} className="w-full h-full object-contain" />
+              <img src={imageUrl} alt={object.Key} className="w-full h-full object-contain" loading="eager" decoding="async" />
             )}
-            {isVideo && videoUrl && (
+            {isVideo && (
               <video
-                src={videoUrl}
+                src={videoUrl || ''}
                 className="w-full h-full object-contain"
                 controls
                 autoPlay
                 playsInline
+                preload="metadata"
+                onCanPlay={() => { if (!videoUrl) {/* no-op */} }}
+                onError={() => { /* swallow */ }}
               />
             )}
-            {!imageUrl && !videoUrl && (
+            {!imageUrl && !isVideo && (
               <div className="text-white/80">Loading...</div>
             )}
           </div>

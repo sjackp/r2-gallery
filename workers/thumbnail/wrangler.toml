@@ -1,0 +1,11 @@
+name = "r2-gallery-thumbnail"
+main = "src/index.ts"
+compatibility_date = "2024-05-01"
+
+[vars]
+# Public base URL of your R2 bucket or CDN in front of it
+# e.g. https://<accountid>.r2.dev/<bucket> or https://cdn.example.com
+BUCKET_BASE_URL = ""
+
+[observability]
+enabled = true

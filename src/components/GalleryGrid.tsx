@@ -1,7 +1,7 @@
 'use client';
 
 import { useObjectStore } from '@/hooks/useObjectStore';
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 
 import { ItemCard } from './ItemCard';
 import FolderCard from './FolderCard';
@@ -11,12 +11,29 @@ import { traverseDataTransferItems } from '@/lib/dnd';
 
 export function GalleryGrid() {
   const { objects, prefixes, fetchObjects, searchQuery, currentPrefix, startDnDUpload } = useObjectStore();
+  const { loadMoreObjects } = useObjectStore.getState() as any;
   const [dragOver, setDragOver] = useState(false);
   const [dragDepth, setDragDepth] = useState(0);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     fetchObjects();
   }, [fetchObjects, currentPrefix]);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const onIntersect: IntersectionObserverCallback = (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          try { (useObjectStore.getState() as any).loadMoreObjects?.(); } catch {}
+        }
+      }
+    };
+    const io = new IntersectionObserver(onIntersect, { root: null, rootMargin: '800px 0px', threshold: 0 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   const onDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -101,6 +118,7 @@ export function GalleryGrid() {
         <ItemCard key={object.Key} object={object} />
       ))}
       </div>
+      <div ref={sentinelRef} className="h-10"></div>
     </div>
     </>
   );

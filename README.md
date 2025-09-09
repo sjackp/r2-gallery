@@ -40,6 +40,19 @@ Environment variables (see `env.example`):
 - `URL_TTL_SECONDS` (optional, default `900`) — signed URL expiry
 - `APP_PASSWORD` (required) — bearer token enforced by `/api/*` middleware
 - `NEXT_PUBLIC_APP_PASSWORD` (optional) — dev convenience to call APIs from the browser
+- `NEXT_PUBLIC_THUMBNAIL_URL` (optional) — public URL to your thumbnail Worker endpoint (e.g., `https://thumbs.example.com/thumb`)
+
+### Thumbnails (optional)
+
+For lightweight previews, deploy a Cloudflare Worker that resizes images from your public R2 base (or CDN):
+
+1. Set your public bucket base in the Worker's `wrangler.toml` as `BUCKET_BASE_URL` (e.g., `https://<account>.r2.dev/<bucket>` or your CDN).
+2. Deploy the Worker and route it to a hostname/path like `https://thumbs.example.com/thumb`.
+3. Set `NEXT_PUBLIC_THUMBNAIL_URL` to that Worker URL.
+
+The UI will request thumbnails as `GET {THUMBNAIL_URL}?key=<object-key>&w=800&h=800&q=75&fit=cover` and avoid downloading originals for grid previews.
+
+> Note: Thumbnails use inline display (no `Content-Disposition`) and long `Cache-Control` for performance. Full downloads still go through the same-origin `/api/download/file` which sets `Content-Disposition: attachment`.
 
 Deprecated/removed: `NEXT_PUBLIC_PUBLIC_BASE_URL`, `PUBLIC_READ_DEFAULT`, `MAX_UPLOAD_MB`.
 

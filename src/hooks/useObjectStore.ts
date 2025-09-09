@@ -8,6 +8,10 @@ interface ObjectState {
   gridLimit: number;
   currentPrefix: string; // path we are viewing
   fetchObjects: () => Promise<void>;
+  loadMoreObjects: () => Promise<void>;
+  isLoading: boolean;
+  isLoadingMore: boolean;
+  hasMore: boolean;
   toggleSelect: (key: string) => void;
   clearSelection: () => void;
   selectAll: () => void;
@@ -50,16 +54,20 @@ export const useObjectStore = create<ObjectState>((set, get) => ({
   prefixes: [],
   selectedKeys: [],
   searchQuery: '',
-  gridLimit: 200,
+  gridLimit: 96,
   currentPrefix: '',
   uploadOpen: false,
   uploadTasks: [],
   linksModalOpen: false,
   modalLinks: [],
+  isLoading: false,
+  isLoadingMore: false,
+  hasMore: false,
 
   fetchObjects: async () => {
     const limit = get().gridLimit;
     const prefix = get().currentPrefix;
+    set({ isLoading: true, hasMore: false });
     const q = new URLSearchParams();
     q.set('limit', String(limit));
     if (prefix) q.set('prefix', prefix);
@@ -70,9 +78,39 @@ export const useObjectStore = create<ObjectState>((set, get) => ({
     });
     const data = await res.json();
     set({ 
-      objects: data.Contents || [], 
+      objects: data.Contents || [],
       prefixes: (data.CommonPrefixes || []).map((p: any) => p.Prefix).filter(Boolean),
+      isLoading: false,
+      hasMore: Boolean(data.IsTruncated && data.NextContinuationToken),
     });
+    // Stash continuation token in a module-scoped place via closure
+    (useObjectStore as any)._nextToken = data.NextContinuationToken || undefined;
+  },
+
+  loadMoreObjects: async () => {
+    if (get().isLoadingMore || !get().hasMore) return;
+    const limit = get().gridLimit;
+    const prefix = get().currentPrefix;
+    const token = (useObjectStore as any)._nextToken as string | undefined;
+    if (!token) return;
+    set({ isLoadingMore: true });
+    const q = new URLSearchParams();
+    q.set('limit', String(limit));
+    if (prefix) q.set('prefix', prefix);
+    q.set('continuationToken', token);
+    const res = await fetch(`/api/objects?${q.toString()}` , {
+      headers: {
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_APP_PASSWORD}`,
+      },
+    });
+    const data = await res.json();
+    set((state) => ({
+      objects: [...(state.objects || []), ...(data.Contents || [])],
+      // prefixes only matter from the first page; keep as-is
+      isLoadingMore: false,
+      hasMore: Boolean(data.IsTruncated && data.NextContinuationToken),
+    }));
+    (useObjectStore as any)._nextToken = data.NextContinuationToken || undefined;
   },
 
   setSearchQuery: (q: string) => set({ searchQuery: q }),
