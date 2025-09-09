@@ -1,15 +1,6 @@
 # R2 Gallery
 
-<video
-  src="https://www.seifjackson.com/sjackp_vids/R2-Gallery_demo.mp4"
-  controls
-  playsinline
-  muted
-  loop
-  width="960">
-  Sorry—your browser can’t play this video. Here’s a direct link:
-  <a href="https://www.seifjackson.com/sjackp_vids/R2-Gallery_demo.mp4">Watch the demo</a>.
-</video>
+![R2 Gallery Demo](https://raw.githubusercontent.com/sjackp/r2-gallery/main/demos.gif)
 
 
 A minimalist web UI to manage a Cloudflare R2 bucket. 
