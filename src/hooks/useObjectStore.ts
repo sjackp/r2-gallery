@@ -76,7 +76,7 @@ export const useObjectStore = create<ObjectState>((set, get) => ({
         Authorization: `Bearer ${process.env.NEXT_PUBLIC_APP_PASSWORD}`,
       },
     });
-    const data = await res.json();
+    const data = (await res.json()) as any;
     set({ 
       objects: data.Contents || [],
       prefixes: (data.CommonPrefixes || []).map((p: any) => p.Prefix).filter(Boolean),
@@ -103,7 +103,7 @@ export const useObjectStore = create<ObjectState>((set, get) => ({
         Authorization: `Bearer ${process.env.NEXT_PUBLIC_APP_PASSWORD}`,
       },
     });
-    const data = await res.json();
+    const data = (await res.json()) as any;
     set((state) => ({
       objects: [...(state.objects || []), ...(data.Contents || [])],
       // prefixes only matter from the first page; keep as-is
@@ -137,7 +137,7 @@ export const useObjectStore = create<ObjectState>((set, get) => ({
     });
     if (!res.ok) {
       let message = 'Failed to create folder';
-      try { const err = await res.json(); if (err?.error) message = err.error; } catch {}
+      try { const err = (await res.json()) as { error?: string }; if (err?.error) message = err.error; } catch {}
       throw new Error(message);
     }
     await get().fetchObjects();
@@ -159,7 +159,11 @@ export const useObjectStore = create<ObjectState>((set, get) => ({
   },
   retryFailed: () => {
     const tasks = get().uploadTasks;
-    const toRetry = tasks.map((t) => (t.status === 'error' || t.status === 'canceled' ? { ...t, status: 'queued', progress: 0, error: undefined } : t));
+    const toRetry: UploadTask[] = tasks.map((t) =>
+      t.status === 'error' || t.status === 'canceled'
+        ? { ...t, status: 'queued' as UploadStatus, progress: 0, error: undefined }
+        : t
+    );
     set({ uploadTasks: toRetry, uploadOpen: true });
     runQueue();
   },
@@ -223,7 +227,7 @@ export const useObjectStore = create<ObjectState>((set, get) => ({
       },
       body: JSON.stringify({ keys }),
     });
-    const { links } = await res.json();
+    const { links } = (await res.json()) as { links?: string[] };
     (links || []).forEach((url: string) => {
       const a = document.createElement('a');
       a.href = url;
@@ -246,7 +250,7 @@ export const useObjectStore = create<ObjectState>((set, get) => ({
       },
       body: JSON.stringify({ keys }),
     });
-    const { links } = await res.json();
+    const { links } = (await res.json()) as { links?: string[] };
     set({ linksModalOpen: true, modalLinks: links || [] });
   },
 }));
@@ -348,7 +352,7 @@ async function checkExists(keys: string[]): Promise<Record<string, boolean>> {
       body: JSON.stringify({ keys }),
     });
     if (!res.ok) return {};
-    const data = await res.json();
+    const data = (await res.json()) as { exists?: Record<string, boolean> };
     return data?.exists || {};
   } catch {
     return {};
@@ -454,8 +458,8 @@ function uploadOne(file: File, key: string): Promise<void> {
 }
 
 function abortAll() {
-  for (const [, xhr] of uploadControllers) {
+  uploadControllers.forEach((xhr) => {
     try { xhr.abort(); } catch {}
-  }
+  });
   uploadControllers.clear();
 }

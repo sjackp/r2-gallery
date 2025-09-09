@@ -5,7 +5,7 @@ import { s3Client } from '@/server/r2';
 // Create a zero-byte "folder" marker under parentPrefix
 export async function POST(request: NextRequest) {
   try {
-    const { parentPrefix = '', name } = await request.json();
+    const { parentPrefix = '', name } = (await request.json()) as { parentPrefix?: string; name: string };
     if (!name || typeof name !== 'string') {
       return NextResponse.json({ error: 'Missing folder name' }, { status: 400 });
     }

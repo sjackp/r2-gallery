@@ -83,7 +83,7 @@ export function Header() {
                 if (!res.ok) {
                   let message = 'Failed to upload files';
                   try {
-                    const err = await res.json();
+                    const err = (await res.json()) as { error?: string };
                     if (err?.error) message = err.error;
                   } catch {}
                   throw new Error(message);
@@ -100,8 +100,8 @@ export function Header() {
                   body: JSON.stringify({ keys }),
                 });
                 if (linkRes.ok) {
-                  const data = await linkRes.json();
-                  const links = (data?.links || []) as string[];
+                  const data = (await linkRes.json()) as { links?: string[] };
+                  const links = data?.links || [];
                   showLinksModal(links);
                 }
               } catch (err) {

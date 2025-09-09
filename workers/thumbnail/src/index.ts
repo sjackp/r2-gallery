@@ -1,3 +1,5 @@
+/// <reference types="@cloudflare/workers-types" />
+
 export interface Env {
 	BUCKET_BASE_URL: string;
 }
@@ -48,13 +50,13 @@ export default {
 		const encodedKey = encodeKeyPath(key);
 		const origin = env.BUCKET_BASE_URL.replace(/\/$/, '') + '/' + encodedKey;
 
-		const cfOptions: any = {
+		const cfOptions = {
 			image: { width, height, quality, fit, format },
 			cacheEverything: true,
 			cacheTtl: 604800, // 7 days
 		};
 
-		const upstream = await fetch(origin, { cf: cfOptions });
+		const upstream = await fetch(origin, { cf: cfOptions } as RequestInit);
 		if (!upstream.ok) {
 			return new Response('Upstream error: ' + upstream.status, { status: 502 });
 		}

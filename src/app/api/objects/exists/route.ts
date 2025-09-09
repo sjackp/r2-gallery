@@ -3,7 +3,7 @@ import { objectExists } from '@/server/r2';
 
 export async function POST(request: NextRequest) {
   try {
-    const { keys } = await request.json();
+    const { keys } = (await request.json()) as { keys: string[] };
     if (!Array.isArray(keys)) {
       return NextResponse.json({ error: 'keys must be an array' }, { status: 400 });
     }

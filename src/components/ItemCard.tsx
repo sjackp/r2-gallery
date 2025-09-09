@@ -97,8 +97,8 @@ export function ItemCard({ object }: ItemCardProps) {
               signal: controller.signal,
             });
             if (!response.ok) throw new Error('failed');
-            const data = await response.json();
-            if (!aborted) setImageUrl(data.url);
+            const data = (await response.json()) as { url?: string };
+            if (!aborted) setImageUrl(data.url ?? null);
           }
         }
       } catch (error) {
@@ -138,7 +138,7 @@ export function ItemCard({ object }: ItemCardProps) {
       },
       body: JSON.stringify({ keys: [object.Key] }),
     });
-    const data = await res.json();
+    const data = (await res.json()) as { links?: string[] };
     const url = Array.isArray(data?.links) ? data.links[0] : undefined;
     if (url) {
       navigator.clipboard.writeText(url);
@@ -156,7 +156,7 @@ export function ItemCard({ object }: ItemCardProps) {
         },
         body: JSON.stringify({ key: object.Key }),
       });
-      const { url: signed } = await alt.json();
+      const { url: signed } = (await alt.json()) as { url?: string };
       if (signed) {
         navigator.clipboard.writeText(signed);
         setCopied(true);
@@ -196,8 +196,8 @@ export function ItemCard({ object }: ItemCardProps) {
           },
           body: JSON.stringify({ key: object.Key }),
         });
-        const data = await res.json();
-        const fallbackUrl = data?.url as string | undefined;
+        const data = (await res.json()) as { url?: string };
+        const fallbackUrl = data?.url;
         if (fallbackUrl) {
           const a = document.createElement('a');
           a.href = fallbackUrl;

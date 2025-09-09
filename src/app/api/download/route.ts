@@ -2,7 +2,7 @@ import { presignGet } from '@/server/r2';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
-  const { keys } = await request.json();
+  const { keys } = (await request.json()) as { keys: string[] };
 
   const publicBase = process.env.CLOUDFLARE_BUCKET_URL;
   if (publicBase) {
