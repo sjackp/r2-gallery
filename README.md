@@ -1,10 +1,12 @@
 # R2 Gallery
 
+https://www.seifjackson.com/sjackp_vids/R2-Gallery_demo.mp4
+
 A minimalist web UI to manage a Cloudflare R2 bucket. 
 Easily drag & drop to upload files and or folders.
 Bulk copy links, single click downloads.
 
-This project is dev-first and self-hosted. It’s reasonably secure for personal use but not production-hardened. PRs welcome!
+This project is dev-first and self-hosted. It's reasonably secure for personal use but not production-hardened. PRs welcome!
 
 ## Features
 
