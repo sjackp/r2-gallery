@@ -2,7 +2,7 @@
 
 <video width="800" controls>
   <source src="https://www.seifjackson.com/sjackp_vids/R2-Gallery_demo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
+
 </video>
 
 A minimalist web UI to manage a Cloudflare R2 bucket. 
