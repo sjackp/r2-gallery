@@ -1,9 +1,6 @@
 # R2 Gallery
 
-<video width="800" controls>
-  <source src="https://www.seifjackson.com/sjackp_vids/R2-Gallery_demo.mp4" type="video/mp4">
-
-</video>
+![R2 Gallery Demo](R2-Gallery_demo.gif)
 
 A minimalist web UI to manage a Cloudflare R2 bucket. 
 Easily drag & drop to upload files and or folders.
