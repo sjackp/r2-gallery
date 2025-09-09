@@ -45,19 +45,19 @@ export function Modal({ open, title, onClose, children, footer, className }: Mod
             exit={{ y: 12, opacity: 0 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
           >
-            {(title || onClose) && (
-              <div className="flex items-center justify-between px-5 pt-4 pb-3">
+            <div className="flex items-center justify-between px-5 pt-4 pb-3">
+              {title && (
                 <h3 className="text-base font-semibold text-gray-800">{title}</h3>
-                <button
-                  onClick={onClose}
-                  aria-label="Close"
-                  className="rounded-full p-2 hover:bg-black/5 transition"
-                >
-                  <span className="sr-only">Close</span>
-                  ×
-                </button>
-              </div>
-            )}
+              )}
+              <button
+                onClick={onClose}
+                aria-label="Close"
+                className="rounded-full p-2 hover:bg-black/5 transition"
+              >
+                <span className="sr-only">Close</span>
+                ×
+              </button>
+            </div>
             <div className="px-5 pb-4 text-gray-800 flex-1 overflow-auto">{children}</div>
             {footer && <div className="px-5 pt-3 pb-5 border-t border-black/5">{footer}</div>}
           </motion.div>
